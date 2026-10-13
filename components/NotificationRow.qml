@@ -4,6 +4,7 @@ import Quickshell
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
+import "WebApps.js" as WebApps
 
 // One notification, as it reads after the fact.
 //
@@ -44,9 +45,15 @@ Item {
   signal removeRequested()
 
   readonly property bool hovered: hover.hovered
-  // Per-notification media first (an avatar, album art), then the app's own
-  // icon. Both may be missing, and the fallback below covers that.
-  readonly property string iconSource: image !== "" ? resolve(image) : resolve(appIcon)
+  // Per-notification media first (an avatar, album art), then the web app the
+  // notification came from, then the app's own icon. The web app goes ahead of
+  // app_icon because a browser fills that in with its own logo for every site.
+  // All of them may be missing, and the fallback below covers that.
+  readonly property string iconSource: {
+    if (image !== "") return resolve(image)
+    var webApp = resolve(WebApps.lookup(body, DesktopEntries.applications ? DesktopEntries.applications.values : []))
+    return webApp !== "" ? webApp : resolve(appIcon)
+  }
   readonly property bool hasIcon: iconSource !== "" && icon.status !== Image.Error
   readonly property string initial: app === "" ? "?" : app.charAt(0).toUpperCase()
   readonly property bool hasPreview: showPreview && preview !== "" && previewImage.status !== Image.Error

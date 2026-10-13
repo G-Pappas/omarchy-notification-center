@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "components/WebApps.js" as WebApps
 
 import "Store.js" as Store
 
@@ -256,5 +257,14 @@ Item {
     id: reloadAfterSeed
     interval: 600
     onTriggered: root.load()
+  }
+
+  // The origin-to-web-app index a row looks icons up in is a snapshot of the
+  // desktop entries, so it is thrown away whenever an app is installed,
+  // removed, or edited. Here rather than on the row for the same reason the
+  // watcher is: one index for the shell, not one per monitor.
+  Connections {
+    target: DesktopEntries.applications
+    function onValuesChanged() { WebApps.reset() }
   }
 }
